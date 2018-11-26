@@ -16,7 +16,21 @@ const jwt = require('jsonwebtoken')
 //////////////////////////////////////////////////////////////////////////////
 
 function login(req, res, next){
+  if (!req.body.username) {
+    return next({status: 400, message: 'Bad request'})
+  } 
 
+  if (!req.body.password) {
+    return next({status: 400, message: 'Bad request'})
+  }
+
+  authModel.login(req.body.username, req.body.password)
+  .then ((user) => {
+    const token = jwt.sign({user: user.id}, process.env.SECRET)
+
+    res.status(201).send( {token} )
+  })
+  .catch(next)
 }
 
 //////////////////////////////////////////////////////////////////////////////

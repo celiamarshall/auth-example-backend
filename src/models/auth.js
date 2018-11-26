@@ -1,5 +1,5 @@
 const db = require('../../db')
-const bcrypt = require('bcrypt-as-promised')
+const bcrypt = require('bcrypt')
 const userModel = require('./users')
 
 //////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,22 @@ const userModel = require('./users')
 //////////////////////////////////////////////////////////////////////////////
 
 function login(username, password){
+  let user 
+  return userModel.getOneByUserName(username)
+  .then( (data) => {
+    if (!data) throw {status: 400, message: 'Error'}
 
+    user = data
+
+    return bcrypt.compare(password, data.password)
+  })
+  .then( (status) => {
+    if (!status) throw {status: 401, message: 'Unauthorized'}
+
+    delete user.password
+    
+    return user
+  })
 }
 
 module.exports = {
